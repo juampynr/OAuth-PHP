@@ -829,6 +829,10 @@ class OAuthUtil {
           $out[$key] = $value;
         }
       }
+      // The "Authorization" header may get turned into "Auth".
+      if ($out['Auth']) {
+        $out['Authorization'] = $out['Auth'];
+      }
     }
     return $out;
   }
