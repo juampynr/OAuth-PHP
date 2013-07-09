@@ -265,13 +265,22 @@ class OAuthRequest {
    * attempt to build up a request from what was passed to the server
    */
   public static function from_request($http_method=NULL, $http_url=NULL, $parameters=NULL) {
-    $scheme = (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on")
+    // If the request was forwarded by a proxy or load balancer we need to 
+    // use the protocol and the port of the forwarded request.
+    if( isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && isset($_SERVER['HTTP_X_FORWARDED_PORT']) ) {
+    	$scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'];
+    	$port = $_SERVER['HTTP_X_FORWARDED_PORT'];
+    } else {
+    	$scheme = (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on")
               ? 'http'
               : 'https';
+    	$port = $_SERVER['SERVER_PORT'];
+    }
+    
     $http_url = ($http_url) ? $http_url : $scheme .
                               '://' . $_SERVER['SERVER_NAME'] .
                               ':' .
-                              $_SERVER['SERVER_PORT'] .
+                              $port .
                               $_SERVER['REQUEST_URI'];
     $http_method = ($http_method) ? $http_method : $_SERVER['REQUEST_METHOD'];
 
